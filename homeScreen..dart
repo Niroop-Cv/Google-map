@@ -1,22 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 
 class MyHome extends StatelessWidget {
-  const MyHome({super.key});
+  MyHome({super.key});
+
+  LocationData? loctdata;
+  Location lctn = Location();
+
+  Future<LocationData?> getLocate() async {
+    loctdata = await lctn.getLocation();
+    return loctdata;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GoogleMap(
-        initialCameraPosition:
-            CameraPosition(zoom: 15, target: LatLng(11.232580, 75.803214)),
-        mapToolbarEnabled: true,
-        mapType: MapType.hybrid,
-        compassEnabled: true,
-        trafficEnabled: true,
-        myLocationEnabled: true,
-        myLocationButtonEnabled: true,
-      ),
+      // appBar: AppBar(),
+      body: FutureBuilder(
+          future: getLocate(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+            return GoogleMap(
+              initialCameraPosition: CameraPosition(
+                  zoom: 14,
+                  target: LatLng(
+                      snapshot.data!.latitude!, snapshot.data!.longitude!)),
+              mapToolbarEnabled: true,
+              mapType: MapType.hybrid,
+              compassEnabled: true,
+              trafficEnabled: true,
+              myLocationEnabled: true,
+              myLocationButtonEnabled: true,
+              
+            );
+          }),
     );
   }
 }
